@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade: Whack-A-Toxic-Netizen</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
+            --neon-blue: #38bdf8;
+            --neon-green: #4ade80;
+            --neon-red: #f87171;
+            --avatar-bg: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow: hidden;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><text x='0' y='36' font-size='36'>🔨</text></svg>"), auto;
+        }
+
+        body:active {
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><text x='0' y='36' font-size='36' transform='rotate(-45 24 24)'>🔨</text></svg>"), auto;
+        }
+
+        /* Top HUD Dashboard */
+        .hud {
+            width: 100%;
+            max-width: 850px;
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 12px;
+            padding: 10px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+            z-index: 5;
+        }
+
+        .hud-box { text-align: center; flex: 1; }
+        .hud-title { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; font-weight: bold; margin-bottom: 4px; }
+        .hud-score { font-size: 32px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+        
+        .timer-text { color: #fff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+
+        .reputation-bar-container {
+            width: 120px;
+            height: 14px;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            overflow: hidden;
+            margin: 4px auto 0 auto;
+        }
+
+        .reputation-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--neon-blue);
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Game Arena */
+        .arena {
+            width: 100%;
+            max-width: 850px;
+            flex-grow: 1;
+            background: var(--panel-bg);
+            border: 2px solid #334155;
+            border-radius: 16px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px 20px 40px 20px;
+            position: relative;
+        }
+
+        /* User Profile Container */
+        .user-node {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        /* The Avatar Picture */
+        .avatar-pic {
+            width: 85px;
+            height: 85px;
+            background: var(--avatar-bg);
+            border: 4px solid #475569;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            z-index: 2;
+            pointer-events: auto; 
+            cursor: pointer;
+        }
+
+        /* Bubble Comment */
+        .bubble {
+            position: absolute;
+            bottom: 95px;
+            width: 220px;
+            background: #ffffff;
+            color: #000;
+            padding: 12px 15px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            border: 3px solid #cbd5e1;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            
+            opacity: 0;
+            transform: scale(0.3) translateY(20px);
+            transform-origin: bottom center; 
+            transition: opacity 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            pointer-events: none; 
+            z-index: 3;
+            cursor: pointer;
+        }
+
+        .bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 12px 12px 0;
+            border-style: solid;
+            border-color: #ffffff transparent;
+            display: block;
+            width: 0;
+            z-index: 4;
+        }
+        
+        .bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 15px 15px 0;
+            border-style: solid;
+            border-color: #cbd5e1 transparent;
+            display: block;
+            width: 0;
+            z-index: 3;
+        }
+
+        .username {
+            display: block;
+            font-size: 11px;
+            color: var(--neon-blue);
+            margin-bottom: 6px;
+            text-decoration: underline;
+        }
+
+        .user-node.active .bubble {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto; 
+        }
+
+        .user-node.active .avatar-pic {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
+            transform: scale(1.1);
+        }
+
+        .key-hint {
+            position: absolute;
+            bottom: 0;
+            right: 50%;
+            transform: translate(120%, 20%);
+            background: #0f172a;
+            color: var(--neon-blue);
+            font-size: 12px;
+            font-weight: 900;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 2px solid var(--neon-blue);
+            z-index: 4;
+        }
+
+        /* Overlays */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 14px;
+            z-index: 10;
+        }
+
+        .overlay h1 { font-size: 48px; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-blue); }
+        .overlay p { font-size: 15px; color: #e2e8f0; max-width: 500px; text-align: center; margin-bottom: 30px; line-height: 1.5; }
+
+        .btn {
+            background: var(--neon-blue);
+            color: #0f172a;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: 900;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-blue);
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.95); }
+
+        .flash-green { animation: fGreen 0.3s; }
+        .flash-red { animation: fRed 0.3s; }
+        @keyframes fGreen { 0% { box-shadow: inset 0 0 50px var(--neon-green), 0 0 50px var(--neon-green); border-color: var(--neon-green); } }
+        @keyframes fRed { 0% { box-shadow: inset 0 0 50px var(--neon-red), 0 0 50px var(--neon-red); border-color: var(--neon-red); } }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- HUD -->
+    <div class="hud">
+        <div class="hud-box" style="text-align: left;">
+            <div class="hud-title">SKOR DIBERSIHKAN</div>
+            <div class="hud-score" id="score">0</div>
+        </div>
+        <div class="hud-box">
+            <div class="hud-title">WAKTU SISA</div>
+            <div class="hud-score timer-text" id="time-left">60s</div>
+        </div>
+        <div class="hud-box" style="text-align: right;">
+            <div class="hud-title">REPUTASI AKUN</div>
+            <div class="hud-score" id="reputation-text" style="color: #fff; font-size: 24px;">100%</div>
+            <div class="reputation-bar-container" style="margin-left: auto; margin-right: 0;">
+                <div class="reputation-bar" id="reputation-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Arena -->
+    <div class="arena" id="arena">
+        <div class="user-node" id="node-0">
+            <div class="bubble" id="bubble-0" onmousedown="whack(0)"><span class="username" id="user-0">@user</span><span id="text-0">Comment</span></div>
+            <div class="avatar-pic" id="avatar-0" onmousedown="whack(0)">👤</div>
+            <div class="key-hint">1</div>
+        </div>
+        <div class="user-node" id="node-1">
+            <div class="bubble" id="bubble-1" onmousedown="whack(1)"><span class="username" id="user-1">@user</span><span id="text-1">Comment</span></div>
+            <div class="avatar-pic" id="avatar-1" onmousedown="whack(1)">👤</div>
+            <div class="key-hint">2</div>
+        </div>
+        <div class="user-node" id="node-2">
+            <div class="bubble" id="bubble-2" onmousedown="whack(2)"><span class="username" id="user-2">@user</span><span id="text-2">Comment</span></div>
+            <div class="avatar-pic" id="avatar-2" onmousedown="whack(2)">👤</div>
+            <div class="key-hint">3</div>
+        </div>
+        <div class="user-node" id="node-3">
+            <div class="bubble" id="bubble-3" onmousedown="whack(3)"><span class="username" id="user-3">@user</span><span id="text-3">Comment</span></div>
+            <div class="avatar-pic" id="avatar-3" onmousedown="whack(3)">👤</div>
+            <div class="key-hint">4</div>
+        </div>
+        <div class="user-node" id="node-4">
+            <div class="bubble" id="bubble-4" onmousedown="whack(4)"><span class="username" id="user-4">@user</span><span id="text-4">Comment</span></div>
+            <div class="avatar-pic" id="avatar-4" onmousedown="whack(4)">👤</div>
+            <div class="key-hint">5</div>
+        </div>
+        <div class="user-node" id="node-5">
+            <div class="bubble" id="bubble-5" onmousedown="whack(5)"><span class="username" id="user-5">@user</span><span id="text-5">Comment</span></div>
+            <div class="avatar-pic" id="avatar-5" onmousedown="whack(5)">👤</div>
+            <div class="key-hint">6</div>
+        </div>
+
+        <!-- Overlays -->
+        <div class="overlay" id="start-screen">
+            <h1>BERSIHKAN LINIMASA</h1>
+            <p>
+                <b>WAKTU: 60 DETIK</b><br><br>
+                Netizen akan membagikan postingan mereka. Pukul Avatar atau Gelembung Komentarnya secara akurat!<br><br>
+                🟢 <b>Komentar Baik:</b> JANGAN DIPUKUL! (Pinalti -25)<br>
+                🔴 <b>Komentar Toxic/Hoax:</b> PUKUL SECEPATNYA! (+10 Poin). Jika dibiarkan terlewat, pinalti -15.<br><br>
+                Gunakan KLIK MOUSE atau Tombol Angka 1-6.
+            </p>
+            <button class="btn" onclick="startGame()">MULAI GAME</button>
+        </div>
+
+        <div class="overlay hidden" id="game-over-screen">
+            <h1 id="end-title">WAKTU HABIS!</h1>
+            <p id="game-over-reason">Sesi moderasi selesai.</p>
+            <div class="hud-title">SKOR AKHIR ANDA</div>
+            <div class="hud-score" id="final-score" style="font-size: 50px; margin-bottom: 20px;">0</div>
+            <button class="btn" onclick="startGame()">MAIN LAGI</button>
+        </div>
+    </div>
+
+    <script>
+        const commentBank = [
+            // --- POSITIF (JANGAN DIPUKUL) ---
+            { isToxic: false, avatar: "🎨", user: "@budi_kreatif", text: "Keren banget karyanya! Terus berkarya ya kak." },
+            { isToxic: false, avatar: "🔍", user: "@anisa_smart", text: "Mohon izin meluruskan info ini kak, datanya kurang tepat." },
+            { isToxic: false, avatar: "❤️", user: "@rahma_care", text: "Semoga lekas sembuh ya! Tetap semangat." },
+            { isToxic: false, avatar: "🚀", user: "@sobat_support", text: "Salut sama perjuangannya! Sukses terus ya usahanya." },
+            { isToxic: false, avatar: "🎧", user: "@audiens_positif", text: "Kritik sedikit kak, mungkin audionya bisa diperjelas." },
+            { isToxic: false, avatar: "💡", user: "@doni_belajar", text: "Wah penjelasannya mudah dipahami! Makasih banyak ya." },
+            { isToxic: false, avatar: "✨", user: "@siti_barokah", text: "MasyaAllah adem banget denger suaranya, sukses terus." },
+            { isToxic: false, avatar: "🏫", user: "@info_sekolah", text: "Pemberitahuan resmi dari pihak sekolah menyatakan besok libur." },
+            { isToxic: false, avatar: "🧠", user: "@ari_paham", text: "Keren edukasinya, Kak! Jadi paham bedanya opini sama fakta." },
+            { isToxic: false, avatar: "✍️", user: "@tulus_bantu", text: "Maaf sekadar mengingatkan, typo di bagian judul mungkin bisa diperbaiki." },
+            { isToxic: false, avatar: "🍳", user: "@dapur_pemula", text: "Wah, info resepnya bermanfaat banget buat pemula. Makasih!" },
+            { isToxic: false, avatar: "⚖️", user: "@reviewer_bijak", text: "Penjelasan di video ini sangat objektif, suka banget." },
+            { isToxic: false, avatar: "📖", user: "@fikri_baca", text: "Terima kasih sudah berbagi perspektif baru yang mencerahkan." },
+            { isToxic: false, avatar: "👏", user: "@audiens_cerdas", text: "Cara bicaranya sopan dan sangat menghargai narasumber. Panutan!" },
+            { isToxic: false, avatar: "🗣️", user: "@bahasa_santun", text: "Pilihan kata yang digunakan sangat santun, enak didengar." },
+            { isToxic: false, avatar: "🔒", user: "@cyber_secure", text: "Terima kasih atas tips keamanannya, sangat membantu menjaga privasi." },
+            { isToxic: false, avatar: "🍿", user: "@setia_nonton", text: "Bagus banget pembahasannya, ditunggu kelanjutan part 2-nya ya!" },
+            { isToxic: false, avatar: "📊", user: "@pecinta_data", text: "Data yang disajikan sangat lengkap disertai referensi yang jelas." },
+            { isToxic: false, avatar: "🌍", user: "@bagikan_kebaikan", text: "Semoga informasi ini bisa menjangkau lebih banyak orang." },
+            { isToxic: false, avatar: "🤝", user: "@respect_user", text: "Cara kakak menangani kritik tadi sangat dewasa dan profesional!" },
+            { isToxic: false, avatar: "✅", user: "@cek_fakta", text: "Informasi yang sangat valid dan dikonfirmasi langsung oleh pihak berwenang." },
+            { isToxic: false, avatar: "🌱", user: "@pecinta_lingkungan", text: "Ayo jaga kebersihan tempat wisata kita bareng-bareng!" },
+            { isToxic: false, avatar: "📝", user: "@catatan_harian", text: "Semangat ya buat yang lagi berjuang skripsi/ujian!" },
+            { isToxic: false, avatar: "🏵️", user: "@komunitas_peduli", text: "Terima kasih sudah membagikan hal positif hari ini." },
+            { isToxic: false, avatar: "🙏", user: "@doa_bersama", text: "Semoga urusannya dilancarkan dan berkah untuk kita semua." },
+            { isToxic: false, avatar: "🧘", user: "@tips_sehat", text: "Jangan lupa minum air putih dan istirahat yang cukup ya." },
+            { isToxic: false, avatar: "📚", user: "@perpustakaan_muda", text: "Buku ini sangat rekomendasi untuk menambah wawasan kita." },
+            { isToxic: false, avatar: "🏅", user: "@motivator_id", text: "Kegagalan adalah awal dari kesuksesan, teruslah berusaha." },
+            { isToxic: false, avatar: "🌞", user: "@pagi_ceria", text: "Selamat pagi semuanya, semoga hari ini menyenangkan!" },
+            { isToxic: false, avatar: "💻", user: "@teman_belajar", text: "Bisa jelaskan lebih lanjut poin nomor 3 tadi kak?" },
+            { isToxic: false, avatar: "🎨", user: "@seniman_lokal", text: "Palet warna yang digunakan sangat estetik, suka banget!" },
+            { isToxic: false, avatar: "🧩", user: "@suka_logika", text: "Penjelasan algoritmanya sangat jelas, terima kasih ilmunya." },
+            { isToxic: false, avatar: "💬", user: "@diskusi_sehat", text: "Mari kita hargai perbedaan pendapat dalam forum ini." },
+            { isToxic: false, avatar: "🎵", user: "@pecinta_musik", text: "Lirik lagunya dalam banget, makasih sudah buat video ini." },
+            { isToxic: false, avatar: "🌳", user: "@hijau_bumi", text: "Setiap langkah kecil sangat berarti untuk bumi kita." },
+            { isToxic: false, avatar: "🔭", user: "@suka_sains", text: "Wah, fakta astronomi yang sangat menarik! Lanjut part 2." },
+            { isToxic: false, avatar: "🧵", user: "@jahit_yuk", text: "Tips menjahitnya sangat berguna, jadi bisa benerin baju sendiri." },
+            { isToxic: false, avatar: "🚴", user: "@sobat_sepeda", text: "Rute gowesnya mantap, nanti saya coba ikuti ya!" },
+            { isToxic: false, avatar: "📽️", user: "@editor_pemula", text: "Terima kasih tutorial transisinya, sangat membantu editing saya." },
+            { isToxic: false, avatar: "🍰", user: "@pencinta_kue", text: "Resepnya sudah saya coba dan rasanya enak sekali!" },
+
+            // --- NEGATIF / TOXIC / HOAX (HARUS DIPUKUL) ---
+            { isToxic: true,  avatar: "💥", user: "@tukang_nyinyir", text: "Halah gini doang, semua orang juga bisa bikin!" },
+            { isToxic: true,  avatar: "⚠️", user: "@hoax_center", text: "SEBARKAN!! JIKA TIDAK AKUN ANDA AKAN DIHAPUS!!!" },
+            { isToxic: true,  avatar: "💀", user: "@hater_sejati", text: "Muka pas-pasan kok pede banget bikin konten." },
+            { isToxic: true,  avatar: "🤮", user: "@toxic_warrior", text: "Dasar bodoh! Gara-gara opini lu netizen jadi sesat." },
+            { isToxic: true,  avatar: "📱", user: "@hoax_kuota", text: "Klik link ini untuk kuota gratis 100GB dari pemerintah!" },
+            { isToxic: true,  avatar: "📉", user: "@kritikus_kejam", text: "Jelek banget editingnya, mending pensiun aja." },
+            { isToxic: true,  avatar: "🚨", user: "@teori_konspirasi",text: "VIRALKAN! Dokter merahasiakan obat ini demi bisnis!" },
+            { isToxic: true,  avatar: "🗑️", user: "@netizen_pedas", text: "Akun sampah kayak gini kok bisa dapet centang biru sih? Hapus aja woi!" },
+            { isToxic: true,  avatar: "💸", user: "@link_dancuk", text: "KLIK LINK INI UNTUK DAPAT SALDO GRATIS 10 JUTA LANGSUNG CAIR!!!!" },
+            { isToxic: true,  avatar: "🙄", user: "@anti_gimmick", text: "Alah, palingan juga hasil editan atau setingan demi dapet viewers." },
+            { isToxic: true,  avatar: "🤬", user: "@pencari_ribut", text: "Heleh, sok tahu banget lu. Kuliah aja belum bener udah ceramahin orang." },
+            { isToxic: true,  avatar: "❌", user: "@body_shamer", text: "Badan gemuk kayak gitu gak usah sok-sokan bikin konten fashion deh." },
+            { isToxic: true,  avatar: "🤮", user: "@fyp_nyasar", text: "Ngapain sih konten kayak gini lewat di fyp gue? Gak bermutu banget najis." },
+            { isToxic: true,  avatar: "🚫", user: "@hoax_kesehatan", text: "AWAS! Jangan makan buah ini malam hari, bisa memicu kelumpuhan mendadak!" },
+            { isToxic: true,  avatar: "💸", user: "@tuduh_sembarangan",text: "Halah, dapet duit dari hasil nipu netizen aja bangga lu." },
+            { isToxic: true,  avatar: "👊", user: "@toxic_toxic", text: "Wajah lu tuh yang hoax, gak usah banyak tingkah di sosmed." },
+            { isToxic: true,  avatar: "🔥", user: "@kompor_online", text: "Ada yang setuju gak kalau orang ini mending dibanned aja dari internet?" },
+            { isToxic: true,  avatar: "📺", user: "@nyinyir_club", text: "Artis gak laku, cari sensasi mulu kerjaannya biar diundang tv." },
+            { isToxic: true,  avatar: "🙏", user: "@pengemis_like", text: "PENTING! Ketik 'AMIN' dan share video ini agar rezeki keluarga lancar!!" },
+            { isToxic: true,  avatar: "🤢", user: "@kritikus_fashion", text: "Style pakaiannya norak banget, keliatan gak punya selera." },
+            { isToxic: true,  avatar: "😡", user: "@netizen_galak", text: "Cari panggung mulu, mending urusin tuh hidup lu sendiri yang berantakan." },
+            { isToxic: true,  avatar: "🚨", user: "@detektif_sosmed", text: "Waspada gaes! Akun ini terindikasi penipuan berkedok donasi!" },
+            { isToxic: true,  avatar: "🤐", user: "@hater_gariskeras", text: "Woy dengerin ya, opini lu gak penting banget. Mending lu diem aja." },
+            { isToxic: true,  avatar: "🤡", user: "@tukang_bully", text: "Caper banget sih, cari perhatian doang kerjanya di internet." },
+            { isToxic: true,  avatar: "💩", user: "@penebar_racun", text: "Stop konten ginian, gak ada faedahnya sama sekali!" },
+            { isToxic: true,  avatar: "👹", user: "@netizen_dendam", text: "Jangan lupa ya, siapa yang menabur akan menuai karma!" },
+            { isToxic: true,  avatar: "👺", user: "@provokator", text: "Kalian semua gak tahu apa-apa, jangan sok pinter deh!" },
+            { isToxic: true,  avatar: "🧛", user: "@pemburu_gimmick", text: "Settingan banget videonya, demi dapet endorse ya?" },
+            { isToxic: true,  avatar: "🧨", user: "@pemicu_konflik", text: "Setuju gak kalau dia ini mending di-doxxing aja biar kapok?" },
+            { isToxic: true,  avatar: "🐍", user: "@si_paling_benar", text: "Logika lu sesat, mending belajar lagi sebelum komen!" },
+            { isToxic: true,  avatar: "☠️", user: "@pendukung_hate", text: "Gak akan ada yang dukung lu, mending mundur aja!" },
+            { isToxic: true,  avatar: "🔦", user: "@fitnah_center", text: "Saya punya bukti kalau lu sebenernya nipu netizen!" },
+            { isToxic: true,  avatar: "🌩️", user: "@keyboard_warrior", text: "Mau ketemuan? Sini kasih alamat, jangan cuma berani di sosmed!" },
+            { isToxic: true,  avatar: "🧂", user: "@netizen_garam", text: "Gak usah sok manis, aslinya busuk lu!" },
+            { isToxic: true,  avatar: "🖕", user: "@anarkis_sosmed", text: "Lu gak pantes dapet tempat di industri ini, cabut aja!" },
+            { isToxic: true,  avatar: "🦠", user: "@penyebar_hoax", text: "Virus ini cuman akal-akalan pemerintah biar kita nurut!" },
+            { isToxic: true,  avatar: "📉", user: "@investasi_bodong", text: "Modal 100 ribu jadi 10 juta dalam 1 hari? DM saya sekarang!" },
+            { isToxic: true,  avatar: "🎭", user: "@fake_news_id", text: "Breaking news! Artis X ketahuan selingkuh, lihat fotonya di sini!" },
+            { isToxic: true,  avatar: "🗯️", user: "@pembenci_semua", text: "Gak peduli konten lu apa, pokoknya gua benci lu!" },
+            { isToxic: true,  avatar: "🌚", user: "@silent_hater", text: "Lu kira lu hebat? Padahal lu cuman badut yang cari duit!" }
+        ];
+
+        let score = 0;
+        let reputation = 100;
+        let timeLeft = 60; 
+        let gameActive = false;
+        
+        let activeNode = null;         
+        let activeComment = null;      
+        let hasBeenHit = false;        
+        let gameLoopTimer = null;      
+        let clockTimer = null;
+        const gameSpeed = 2500;        
+
+        // Audio Engine
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (type === 'correct') {
+                // Correct Sound: Loud, high-pitched Coin/Ding
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5
+                osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.1); // E6
+                
+                gain.gain.setValueAtTime(1.5, audioCtx.currentTime); // LOUD
+                gain.gain.setValueAtTime(1.5, audioCtx.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                
+                osc.start(audioCtx.currentTime); 
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                // Wrong Sound: Loud, sharp, higher-pitched Buzzer 
+                osc.type = 'square'; // Square wave is much easier to hear on laptops than sawtooth
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime); // Shifted UP from 150hz so speakers can play it
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+                
+                gain.gain.setValueAtTime(1.5, audioCtx.currentTime); // LOUD
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                
+                osc.start(audioCtx.currentTime); 
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        function startGame() {
+            initAudio(); // Wake up audio immediately when they click Play
+
+            clearTimeout(gameLoopTimer);
+            clearInterval(clockTimer);
+
+            score = 0;
+            reputation = 100;
+            timeLeft = 60;
+            gameActive = true;
+            activeNode = null;
+            hasBeenHit = false;
+            
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('arena').className = "arena"; 
+            
+            for(let i=0; i<6; i++) {
+                document.getElementById(`node-${i}`).classList.remove('active');
+                document.getElementById(`avatar-${i}`).innerText = "👤";
+            }
+            
+            updateHUD();
+            clockTimer = setInterval(updateClock, 1000);
+            nextNode();
+        }
+
+        function updateClock() {
+            if (!gameActive) return;
+            timeLeft--;
+            document.getElementById('time-left').innerText = timeLeft + 's';
+
+            if (timeLeft <= 0) {
+                endGame("Waktu Habis! Selamat, sesi moderasi selesai.", true);
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById('score').innerText = score;
+            document.getElementById('reputation-text').innerText = reputation + "%";
+            document.getElementById('time-left').innerText = timeLeft + 's';
+            
+            const repBar = document.getElementById('reputation-bar');
+            repBar.style.width = reputation + "%";
+            
+            if(reputation > 50) repBar.style.backgroundColor = "var(--neon-blue)";
+            else if(reputation > 20) repBar.style.backgroundColor = "orange";
+            else repBar.style.backgroundColor = "var(--neon-red)";
+        }
+
+        function nextNode() {
+            if (!gameActive) return;
+
+            if (activeNode !== null && activeComment !== null) {
+                if (activeComment.isToxic === true && hasBeenHit === false) {
+                    reputation -= 15; 
+                    playSound('wrong');
+                    flashArena('flash-red');
+                }
+                
+                document.getElementById(`node-${activeNode}`).classList.remove('active');
+                setTimeout(() => {
+                    if(!gameActive) return;
+                    const prevAvatar = document.getElementById(`avatar-${activeNode}`);
+                    if(prevAvatar.innerText === "💥") prevAvatar.innerText = "👤";
+                }, 300);
+            }
+
+            if (reputation <= 0) return endGame("Reputasi hancur! Terlalu banyak membiarkan komentar toxic.", false);
+
+            activeNode = Math.floor(Math.random() * 6); 
+            activeComment = commentBank[Math.floor(Math.random() * commentBank.length)];
+            hasBeenHit = false; 
+
+            document.getElementById(`user-${activeNode}`).innerText = activeComment.user;
+            document.getElementById(`text-${activeNode}`).innerText = `"${activeComment.text}"`;
+            document.getElementById(`avatar-${activeNode}`).innerText = activeComment.avatar;
+
+            document.getElementById(`node-${activeNode}`).classList.add('active');
+
+            gameLoopTimer = setTimeout(nextNode, gameSpeed);
+            
+            updateHUD();
+        }
+
+        function whack(nodeIndex) {
+            // Abaikan klik jika game tidak aktif, sudah dipukul, atau memukul lubang yang salah
+            if (!gameActive || hasBeenHit || nodeIndex !== activeNode) return;
+
+            hasBeenHit = true; 
+            clearTimeout(gameLoopTimer); 
+
+            if (activeComment.isToxic === true) {
+                // BENAR: Memukul komentar negatif/toxic
+                score += 10;
+                playSound('correct'); // Bunyi "Ding"
+                flashArena('flash-green');
+                document.getElementById(`avatar-${activeNode}`).innerText = "💥"; 
+            } else {
+                // SALAH: Memukul komentar positif (Sopan)
+                reputation -= 25; 
+                playSound('wrong'); // Bunyi "Buzzer"
+                flashArena('flash-red');
+            }
+
+            updateHUD();
+
+            if (reputation <= 0) return endGame("Reputasi hancur! Anda memblokir terlalu banyak netizen baik.", false);
+
+            // Jeda sejenak untuk melihat hasil pukulan
+            gameLoopTimer = setTimeout(nextNode, 400);
+        }
+
+        function flashArena(className) {
+            const arena = document.getElementById('arena');
+            arena.classList.remove('flash-green', 'flash-red');
+            void arena.offsetWidth; 
+            arena.classList.add(className);
+        }
+
+        function endGame(reason, isWin) {
+            gameActive = false;
+            clearTimeout(gameLoopTimer);
+            clearInterval(clockTimer);
+
+            if (activeNode !== null) {
+                document.getElementById(`node-${activeNode}`).classList.remove('active');
+            }
+            if (!isWin) reputation = 0;
+            updateHUD();
+            
+            const titleElem = document.getElementById('end-title');
+            if (isWin) {
+                titleElem.innerText = "WAKTU HABIS!";
+                titleElem.style.color = "var(--neon-blue)";
+            } else {
+                titleElem.innerText = "GAME OVER";
+                titleElem.style.color = "var(--neon-red)";
+            }
+
+            document.getElementById('game-over-reason').innerText = reason;
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('game-over-screen').classList.remove('hidden');
+        }
+
+        window.addEventListener('keydown', (event) => {
+            if (!gameActive) return;
+            const keyMap = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
+            if (event.key in keyMap) {
+                event.preventDefault();
+                const index = keyMap[event.key];
+                
+                const avatar = document.getElementById(`avatar-${index}`);
+                avatar.style.transform = "scale(0.9)";
+                setTimeout(() => avatar.style.transform = "", 100);
+                
+                whack(index);
+            }
+        });
+    </script>
+</body>
+</html>
