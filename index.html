@@ -20,596 +20,180 @@
             --border-color: #e4e6eb;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; user-select: none; }
 
-        body {
-            background-color: var(--bg-app);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            overflow: hidden;
-            padding: 10px;
-        }
+        body { background-color: var(--bg-app); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; overflow: hidden; padding: 10px; }
 
-        .dashboard {
-            width: 100%;
-            max-width: 800px;
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 10px 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid var(--border-color);
-            z-index: 5;
-        }
+        .dashboard { width: 100%; max-width: 800px; background: var(--bg-card); border-radius: 12px; padding: 10px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); z-index: 5; }
+        .stat-box { text-align: center; }
+        .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-sub); font-weight: 700; margin-bottom: 2px; }
+        .stat-value { font-size: 22px; font-weight: 800; color: var(--accent-blue); }
+        .stat-value.score { color: #ff9800; }
+        .reputation-container { width: 130px; background: #e4e6eb; border-radius: 6px; height: 12px; overflow: hidden; margin-top: 4px; border: 1px solid #ccd0d5; }
+        .reputation-bar { height: 100%; width: 100%; background: linear-gradient(90deg, #24b04b, #4cd137); transition: width 0.3s ease; }
 
-        .stat-box {
-            text-align: center;
-        }
+        .feed-container { width: 100%; max-width: 650px; background: var(--bg-card); border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 1px solid var(--border-color); flex-grow: 1; margin: 10px 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .feed-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; background: #fff; z-index: 5; }
+        .app-logo { font-weight: 800; font-size: 18px; color: var(--text-main); }
+        .app-logo span { color: var(--accent-blue); }
+        .feed-subtitle { margin-left: auto; background: #e7f3ff; color: var(--accent-blue); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .post-card { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; justify-content: flex-start; background: #fafafa; position: relative; }
+        .user-info { display: flex; align-items: center; margin-bottom: 12px; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: #dadde1; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; }
+        .username { font-weight: 700; font-size: 16px; color: var(--text-main); }
+        .timestamp { font-size: 12px; color: var(--text-sub); margin-top: 1px; }
+        .comment-bubble { background: #ffffff !important; border: 2px solid #ccd0d5 !important; border-radius: 14px; padding: 15px 20px; font-size: 20px; font-weight: 700; line-height: 1.4; color: #111111 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.04); position: relative; z-index: 2; margin-bottom: 20px; }
+        .timer-track { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; background: #e4e6eb; }
+        .timer-fill { height: 100%; width: 100%; background: var(--accent-blue); transform-origin: left; }
 
-        .stat-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-sub);
-            font-weight: 700;
-            margin-bottom: 2px;
-        }
+        .action-zone { width: 100%; max-width: 700px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding-bottom: 5px; z-index: 5; }
+        .btn-giant { border: none; border-radius: 12px; padding: 12px 8px; font-size: 14px; font-weight: 800; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.1s; }
+        .btn-giant.active, .btn-giant:active { transform: translateY(3px); }
+        .btn-sopan { background: var(--color-sopan); border-bottom: 4px solid var(--color-sopan-hover); }
+        .btn-cekfakta { background: var(--color-cekfakta); border-bottom: 4px solid var(--color-cekfakta-hover); }
+        .btn-toxic { background: var(--color-toxic); border-bottom: 4px solid var(--color-toxic-hover); }
+        .btn-subtitle { font-size: 10px; font-weight: 600; background: rgba(0, 0, 0, 0.15); padding: 1px 6px; border-radius: 6px; }
 
-        .stat-value {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--accent-blue);
-        }
-
-        .stat-value.score {
-            color: #ff9800;
-        }
-
-        .reputation-container {
-            width: 130px;
-            background: #e4e6eb;
-            border-radius: 6px;
-            height: 12px;
-            overflow: hidden;
-            margin-top: 4px;
-            border: 1px solid #ccd0d5;
-        }
-
-        .reputation-bar {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #24b04b, #4cd137);
-            transition: width 0.3s ease;
-        }
-
-        .feed-container {
-            width: 100%;
-            max-width: 650px;
-            background: var(--bg-card);
-            border-radius: 16px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
-            flex-grow: 1;
-            margin: 10px 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .feed-header {
-            padding: 10px 15px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            background: #fff;
-            z-index: 5;
-        }
-
-        .app-logo {
-            font-weight: 800;
-            font-size: 18px;
-            color: var(--text-main);
-        }
-
-        .app-logo span {
-            color: var(--accent-blue);
-        }
-
-        .feed-subtitle {
-            margin-left: auto;
-            background: #e7f3ff;
-            color: var(--accent-blue);
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .post-card {
-            flex-grow: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            background: #fafafa;
-            position: relative;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: #dadde1;
-            margin-right: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-        }
-
-        .username {
-            font-weight: 700;
-            font-size: 16px;
-            color: var(--text-main);
-        }
-
-        .timestamp {
-            font-size: 12px;
-            color: var(--text-sub);
-            margin-top: 1px;
-        }
-
-        .comment-bubble {
-            background: #ffffff !important;
-            border: 2px solid #ccd0d5 !important;
-            border-radius: 14px;
-            padding: 15px 20px;
-            font-size: 20px;
-            font-weight: 700;
-            line-height: 1.4;
-            color: #111111 !important; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-            position: relative;
-            word-wrap: break-word;
-            z-index: 2;
-            margin-bottom: 20px;
-        }
-
-        .timer-track {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 6px;
-            background: #e4e6eb;
-        }
-
-        .timer-fill {
-            height: 100%;
-            width: 100%;
-            background: var(--accent-blue);
-            transform-origin: left;
-        }
-
-        /* THREE ACTION BUTTONS CONTAINER */
-        .action-zone {
-            width: 100%;
-            max-width: 700px;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            padding-bottom: 5px;
-            z-index: 5;
-        }
-
-        .btn-giant {
-            border: none;
-            border-radius: 12px;
-            padding: 12px 8px;
-            font-size: 14px;
-            font-weight: 800;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-
-        .btn-giant.active, .btn-giant:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .btn-sopan {
-            background: var(--color-sopan);
-            border-bottom: 4px solid var(--color-sopan-hover);
-        }
-        .btn-sopan:hover { background: var(--color-sopan-hover); }
-
-        .btn-cekfakta {
-            background: var(--color-cekfakta);
-            border-bottom: 4px solid var(--color-cekfakta-hover);
-        }
-        .btn-cekfakta:hover { background: var(--color-cekfakta-hover); }
-
-        .btn-toxic {
-            background: var(--color-toxic);
-            border-bottom: 4px solid var(--color-toxic-hover);
-        }
-        .btn-toxic:hover { background: var(--color-toxic-hover); }
-
-        .btn-subtitle {
-            font-size: 10px;
-            font-weight: 600;
-            background: rgba(0, 0, 0, 0.15);
-            padding: 1px 6px;
-            border-radius: 6px;
-            letter-spacing: 0.5px;
-        }
-
-        /* Overlays */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            text-align: center;
-            z-index: 20;
-        }
-
-        .overlay h2 {
-            font-size: 26px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            color: var(--text-main);
-        }
-
-        .overlay p {
-            font-size: 14px;
-            color: var(--text-sub);
-            max-width: 420px;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-
-        .btn-start {
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 12px 35px;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 25px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
-        }
-
-        .btn-start:hover { background: #166fe5; }
-
-        .flash-success { animation: flashGreen 0.4s ease-out; }
-        .flash-danger { animation: flashRed 0.4s ease-out; }
-
-        @keyframes flashGreen {
-            0% { background-color: rgba(36, 176, 75, 0.2); }
-            100% { background-color: #fafafa; }
-        }
-        @keyframes flashRed {
-            0% { background-color: rgba(220, 53, 69, 0.2); }
-            100% { background-color: #fafafa; }
-        }
-
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.98); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; z-index: 20; }
+        .btn-start { background: var(--accent-blue); color: white; border: none; padding: 12px 35px; font-size: 16px; font-weight: 700; border-radius: 25px; cursor: pointer; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div class="dashboard">
-        <div class="stat-box">
-            <div class="stat-label">Skor Netizen</div>
-            <div id="score-display" class="stat-value score">0</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-label">Level Kecepatan</div>
-            <div id="level-display" class="stat-value">1</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-label">Reputasi Digital</div>
-            <div id="reputation-text" class="stat-value" style="color: var(--color-sopan);">100%</div>
-            <div class="reputation-container">
-                <div id="reputation-bar" class="reputation-bar"></div>
-            </div>
-        </div>
+        <div class="stat-box"><div class="stat-label">Skor</div><div id="score-display" class="stat-value score">0</div></div>
+        <div class="stat-box"><div class="stat-label">Level</div><div id="level-display" class="stat-value">1</div></div>
+        <div class="stat-box"><div class="stat-label">Reputasi</div><div id="reputation-text" class="stat-value">100%</div><div class="reputation-container"><div id="reputation-bar" class="reputation-bar"></div></div></div>
     </div>
 
     <div class="feed-container">
-        <div class="feed-header">
-            <div class="app-logo">Kita<span>Sosmed</span></div>
-            <div class="feed-subtitle">Filter Jempol v2.0</div>
-        </div>
-
+        <div class="feed-header"><div class="app-logo">Kita<span>Sosmed</span></div><div class="feed-subtitle">Filter Jempol v2.0</div></div>
         <div id="post-card" class="post-card">
-            <div class="user-info">
-                <div id="avatar" class="avatar">🤖</div>
-                <div>
-                    <div id="username" class="username">@netizen_aktif</div>
-                    <div class="timestamp">Baru saja • Bumi</div>
-                </div>
-            </div>
-            
-            <div id="comment-text" class="comment-bubble">
-                Mengunduh data komentar...
-            </div>
-            
-            <div class="timer-track">
-                <div id="timer-fill" class="timer-fill"></div>
-            </div>
+            <div class="user-info"><div id="avatar" class="avatar">🤖</div><div><div id="username" class="username">@user</div><div class="timestamp">Baru saja</div></div></div>
+            <div id="comment-text" class="comment-bubble">Memuat...</div>
+            <div class="timer-track"><div id="timer-fill" class="timer-fill"></div></div>
         </div>
-
-        <div id="start-screen" class="overlay">
-            <h2>Filter Jempol v2.0 🔺</h2>
-            <p>Saring arus informasi media sosial! Gunakan respon yang tepat: <b>Bagikan</b> jika baik, <b>Cek Fakta</b> jika mencurigakan/hoax, <b>Laporkan</b> jika merusak/toxic!</p>
-            <button id="start-btn" class="btn-start" onclick="startGame()" disabled>Memuat database...</button>
-        </div>
-
-        <div id="game-over-screen" class="overlay hidden">
-            <h2 style="color: var(--color-toxic);">Reputasi Hancur! ❌</h2>
-            <p id="game-over-reason">Kamu terlalu banyak membuat kesalahan fatal dalam memoderasi konten.</p>
-            <div style="margin-bottom: 15px;">
-                <div class="stat-label">Skor Akhir Anda</div>
-                <div id="final-score" class="stat-value" style="font-size: 32px; color: #ff9800;">0</div>
-            </div>
-            <button class="btn-start" onclick="startGame()">Main Lagi</button>
-        </div>
+        <div id="start-screen" class="overlay"><h2>Filter Jempol v2.0</h2><p>Pilih tindakan yang tepat untuk setiap komentar.</p><button id="start-btn" class="btn-start" onclick="startGame()">Mulai Game</button></div>
+        <div id="game-over-screen" class="overlay hidden"><h2>Game Over!</h2><p id="game-over-reason"></p><button class="btn-start" onclick="startGame()">Main Lagi</button></div>
     </div>
 
-    <!-- 3 ACTION BUTTONS -->
     <div class="action-zone">
-        <button class="btn-giant btn-sopan" onclick="handleChoice('bagikan')">
-            <span>🟢 BAGIKAN</span>
-            <span class="btn-subtitle">[ ← ] LEFT</span>
-        </button>
-        <button class="btn-giant btn-cekfakta" onclick="handleChoice('cek_fakta')">
-            <span>🟡 CEK FAKTA</span>
-            <span class="btn-subtitle">[ ↓ ] DOWN</span>
-        </button>
-        <button class="btn-giant btn-toxic" onclick="handleChoice('laporkan')">
-            <span>🔴 LAPORKAN</span>
-            <span class="btn-subtitle">[ → ] RIGHT</span>
-        </button>
+        <button class="btn-giant btn-sopan" onclick="handleChoice('bagikan')"><span>🟢 BAGIKAN</span><span class="btn-subtitle">[ ← ]</span></button>
+        <button class="btn-giant btn-cekfakta" onclick="handleChoice('cek_fakta')"><span>🟡 CEK FAKTA</span><span class="btn-subtitle">[ ↓ ]</span></button>
+        <button class="btn-giant btn-toxic" onclick="handleChoice('laporkan')"><span>🔴 LAPORKAN</span><span class="btn-subtitle">[ → ]</span></button>
     </div>
 
     <script>
-        let commentBank = [];
-        let currentComment = {};
-        let score = 0;
-        let reputation = 100;
-        let gameActive = false;
-        let level = 1;
-        let baseTimeLimit = 7000; // Increased base time slightly to give time to think about 3 choices
-        let timerInterval = null;
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let commentBank = []; let currentComment = {}; let score = 0; let reputation = 100; let gameActive = false; let level = 1; let timerInterval = null;
+        let audioCtx;
 
         async function loadComments() {
             try {
                 const response = await fetch('comments.json');
-                if (!response.ok) throw new Error("Gagal mengambil file comments.json");
                 commentBank = await response.json();
-                
-                const startBtn = document.getElementById('start-btn');
-                startBtn.innerText = "Mulai Game";
-                startBtn.disabled = false;
-                document.getElementById('comment-text').innerText = "Database v2.0 Siap!";
-            } catch (err) {
-                console.error(err);
-                document.getElementById('comment-text').innerText = "Error: Pastikan comments.json ada di folder yang sama dan dijalankan via server (Live Server).";
-            }
+                document.getElementById('start-btn').disabled = false;
+            } catch (e) { document.getElementById('comment-text').innerText = "Gagal memuat JSON."; }
+        }
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
         function playSound(type) {
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            initAudio();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
             if (type === 'correct') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); 
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.25);
-            } else if (type === 'wrong') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, audioCtx.currentTime); 
-                osc.frequency.setValueAtTime(147, audioCtx.currentTime + 0.15); 
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.4);
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            } else {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
             }
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
         function startGame() {
-            if(commentBank.length === 0) return;
-            score = 0;
-            reputation = 100;
-            level = 1;
-            gameActive = true;
-            
+            initAudio();
+            score = 0; reputation = 100; level = 1; gameActive = true;
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
-            
             updateStats();
             nextQuestion();
         }
 
-        function updateStats() {
-            document.getElementById('score-display').innerText = score;
-            document.getElementById('level-display').innerText = level;
-            document.getElementById('reputation-text').innerText = reputation + "%";
-            
-            const rBar = document.getElementById('reputation-bar');
-            rBar.style.width = reputation + "%";
-            
-            if (reputation > 50) {
-                rBar.style.background = "linear-gradient(90deg, #24b04b, #4cd137)";
-                document.getElementById('reputation-text').style.color = "var(--color-sopan)";
-            } else if (reputation > 25) {
-                rBar.style.background = "linear-gradient(90deg, #ff9800, #ffc107)";
-                document.getElementById('reputation-text').style.color = "var(--color-cekfakta)";
-            } else {
-                rBar.style.background = "linear-gradient(90deg, #dc3545, #ff4d4d)";
-                document.getElementById('reputation-text').style.color = "var(--color-toxic)";
-            }
-        }
-
         function nextQuestion() {
             if (!gameActive || commentBank.length === 0) return;
-
-            const randomIndex = Math.floor(Math.random() * commentBank.length);
-            currentComment = commentBank[randomIndex];
-
-            document.getElementById('comment-text').innerText = `“${currentComment.text}”`;
+            currentComment = commentBank[Math.floor(Math.random() * commentBank.length)];
+            document.getElementById('comment-text').innerText = currentComment.text;
             document.getElementById('username').innerText = currentComment.user;
             document.getElementById('avatar').innerText = currentComment.avatar;
-
-            level = Math.min(5, Math.floor(score / 4) + 1);
-            const timeLimit = Math.max(2500, baseTimeLimit - (level * 900));
-
-            clearInterval(timerInterval);
-            const timerFill = document.getElementById('timer-fill');
-            timerFill.style.transition = 'none';
-            timerFill.style.transform = 'scaleX(1)';
-            
-            timerFill.offsetHeight; 
-
-            timerFill.style.transition = `transform ${timeLimit}ms linear`;
-            timerFill.style.transform = 'scaleX(0)';
-
-            const startTime = Date.now();
-            timerInterval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                if (elapsed >= timeLimit) {
-                    clearInterval(timerInterval);
-                    handleTimeout();
-                }
-            }, 50);
         }
 
-        function handleChoice(actionString) {
+        function handleChoice(action) {
             if (!gameActive) return;
             clearInterval(timerInterval);
 
-            const postCard = document.getElementById('post-card');
-            
-            // Check choice matching against new string property
-            if (actionString === currentComment.actionRequired) {
-                score++;
+            if (action === currentComment.actionRequired) {
+                score++; 
                 playSound('correct');
-                postCard.className = "post-card flash-success";
             } else {
-                reputation -= 20;
+                reputation -= 20; 
                 playSound('wrong');
-                postCard.className = "post-card flash-danger";
             }
-
-            setTimeout(() => { postCard.className = "post-card"; }, 400);
-
-            updateStats();
-            checkGameState();
-        }
-
-        function handleTimeout() {
-            reputation -= 25;
-            playSound('wrong');
-            const postCard = document.getElementById('post-card');
-            postCard.className = "post-card flash-danger";
-            setTimeout(() => { postCard.className = "post-card"; }, 400);
+            
+            if (reputation < 0) reputation = 0;
             
             updateStats();
-            checkGameState();
-        }
-
-        function checkGameState() {
+            
             if (reputation <= 0) {
-                reputation = 0;
-                updateStats();
-                endGame("Reputasi digitalmu 0%! Akunmu ditangguhkan karena menyebarkan hoax atau meloloskan ujaran kebencian.");
+                endGame("Reputasi digitalmu habis akibat salah penyaringan konten!");
             } else {
                 nextQuestion();
             }
         }
 
-        function endGame(reason) {
-            gameActive = false;
-            clearInterval(timerInterval);
-            document.getElementById('game-over-reason').innerText = reason;
-            document.getElementById('final-score').innerText = score;
-            document.getElementById('game-over-screen').classList.remove('hidden');
-        }
-
-        // BIND PHYSICAL ARROW KEYS (Left, Down, Right)
-        window.addEventListener('keydown', (event) => {
-            if (!gameActive) return;
+        // PERBAIKAN: Fungsi Update UI yang Sebelumnya Kosong
+        function updateStats() {
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('level-display').innerText = level;
             
-            if (event.key === 'ArrowLeft') {
-                event.preventDefault();
-                triggerVisualFeedback('.btn-sopan');
-                handleChoice('bagikan');
-            } else if (event.key === 'ArrowDown') {
-                event.preventDefault();
-                triggerVisualFeedback('.btn-cekfakta');
-                handleChoice('cek_fakta');
-            } else if (event.key === 'ArrowRight') {
-                event.preventDefault();
-                triggerVisualFeedback('.btn-toxic');
-                handleChoice('laporkan');
+            const txtRep = document.getElementById('reputation-text');
+            const barRep = document.getElementById('reputation-bar');
+            
+            txtRep.innerText = reputation + "%";
+            barRep.style.width = reputation + "%";
+            
+            // Perubahan Warna Indikator Berdasarkan Poin Tersisa
+            if (reputation > 50) {
+                barRep.style.background = "linear-gradient(90deg, #24b04b, #4cd137)";
+                txtRep.style.color = "var(--color-sopan)";
+            } else if (reputation > 25) {
+                barRep.style.background = "linear-gradient(90deg, #ff9800, #ffc107)";
+                txtRep.style.color = "var(--color-cekfakta)";
+            } else {
+                barRep.style.background = "linear-gradient(90deg, #dc3545, #ff4d4d)";
+                txtRep.style.color = "var(--color-toxic)";
             }
-        });
-
-        function triggerVisualFeedback(selector) {
-            const btn = document.querySelector(selector);
-            btn.classList.add('active');
-            setTimeout(() => btn.classList.remove('active'), 100);
         }
 
+        function endGame(msg) { 
+            gameActive = false; 
+            clearInterval(timerInterval);
+            document.getElementById('game-over-screen').classList.remove('hidden'); 
+            document.getElementById('game-over-reason').innerText = msg; 
+        }
+        
         window.onload = loadComments;
     </script>
 </body>
